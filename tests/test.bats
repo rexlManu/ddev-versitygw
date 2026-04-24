@@ -34,9 +34,9 @@ health_checks() {
   assert_success
   assert_output --partial "\"Name\": \"local\""
 
-  run ddev exec -s versitygw sh -lc 'AWS_ACCESS_KEY_ID=versity AWS_SECRET_ACCESS_KEY=versitysecret AWS_DEFAULT_REGION=us-east-1 AWS_EC2_METADATA_DISABLED=true aws --endpoint-url http://127.0.0.1:7070 s3api get-bucket-policy --bucket local'
+  run ddev exec -s versitygw sh -lc 'AWS_ACCESS_KEY_ID=versity AWS_SECRET_ACCESS_KEY=versitysecret AWS_DEFAULT_REGION=us-east-1 AWS_EC2_METADATA_DISABLED=true aws --endpoint-url http://127.0.0.1:7070 s3api get-bucket-policy --bucket local | jq -r ".Policy | fromjson | .Statement[] | select(.Sid == \"PublicRead\") | .Sid"'
   assert_success
-  assert_output --partial "\"Sid\":\"PublicRead\""
+  assert_output "PublicRead"
 
   run ddev exec -s versitygw sh -lc 'printf hello > /tmp/test.txt && AWS_ACCESS_KEY_ID=versity AWS_SECRET_ACCESS_KEY=versitysecret AWS_DEFAULT_REGION=us-east-1 AWS_EC2_METADATA_DISABLED=true aws --endpoint-url http://127.0.0.1:7070 s3 cp /tmp/test.txt s3://local/test.txt'
   assert_success
