@@ -59,7 +59,7 @@ health_checks() {
 
   run ddev describe -j
   assert_success
-  assert_output --partial "\"service\":\"versitygw\""
+  assert_output --partial "\"short_name\":\"versitygw\""
   assert_output --partial "https://${PROJNAME}.ddev.site:17080"
   assert_output --partial "https://${PROJNAME}.ddev.site:17070"
   assert_output --partial "Default bucket: local"
