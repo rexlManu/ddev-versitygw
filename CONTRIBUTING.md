@@ -34,8 +34,3 @@ If you need to debug CI interactively, follow the instructions in `README_DEBUG.
 ddev add-on get rexlManu/ddev-versitygw
 ddev restart
 ```
-
-## Maintainer
-
-- GitHub: `@rexlManu`
-- Legal name: Emmanuel Lampe

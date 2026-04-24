@@ -31,12 +31,6 @@ ddev restart
 
 After installation, commit the generated `.ddev/docker-compose.versitygw.yaml` and `.ddev/versitygw/` files in the consuming project.
 
-## Project Status
-
-- GitHub owner: [`rexlManu`](https://github.com/rexlManu)
-- Maintainer: [`@rexlManu`](https://github.com/rexlManu)
-- Legal name: Emmanuel Lampe
-
 ## First-Run Provisioning
 
 On every start, the addon waits for VersityGW to become reachable and then performs idempotent provisioning:
@@ -172,8 +166,3 @@ For a publishable release:
 3. Let the `tests` workflow pass on `main`.
 4. Create a GitHub release with a semver tag.
 5. After the release is live, verify `ddev add-on get rexlManu/ddev-versitygw` in a fresh DDEV project.
-
-## Credits
-
-Contributed and maintained by [`@rexlManu`](https://github.com/rexlManu).
-Legal name: Emmanuel Lampe.
