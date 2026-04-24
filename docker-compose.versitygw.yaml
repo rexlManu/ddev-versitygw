@@ -1,0 +1,60 @@
+#ddev-generated
+services:
+  versitygw:
+    container_name: ddev-${DDEV_SITENAME}-versitygw
+    image: ${VERSITYGW_DOCKER_IMAGE:-ghcr.io/versity/versitygw:v1.4.1}-${DDEV_SITENAME}-built
+    build:
+      context: versitygw
+      args:
+        BASE_IMAGE: ${VERSITYGW_DOCKER_IMAGE:-ghcr.io/versity/versitygw:v1.4.1}
+    hostname: versitygw
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: ${DDEV_APPROOT}
+    restart: "no"
+    entrypoint: ["/bin/sh", "/mnt/ddev_config/versitygw/scripts/start.sh"]
+    expose:
+      - "7070"
+      - "7071"
+      - "8080"
+    environment:
+      VIRTUAL_HOST: ${DDEV_HOSTNAME}
+      HTTP_EXPOSE: "17070:7070,17071:7071,17080:8080"
+      HTTPS_EXPOSE: "17070:7070,17071:7071,17080:8080"
+      ROOT_ACCESS_KEY: ${VERSITYGW_ACCESS_KEY:-versity}
+      ROOT_SECRET_KEY: ${VERSITYGW_SECRET_KEY:-versitysecret}
+      VGW_REGION: ${VERSITYGW_REGION:-us-east-1}
+      VGW_CORS_ALLOW_ORIGIN: "*"
+      VERSITYGW_DEFAULT_BUCKET: ${VERSITYGW_DEFAULT_BUCKET:-local}
+      VERSITYGW_PUBLIC_READ: ${VERSITYGW_PUBLIC_READ:-true}
+      VGW_BACKEND: posix
+      VGW_BACKEND_ARGS: /data/s3
+      VGW_PORT: ":7070"
+      VGW_ADMIN_PORT: ":7071"
+      VGW_WEBUI_PORT: ":8080"
+      VGW_IAM_DIR: /data/iam
+      VGW_VERSIONING_DIR: /data/versioning
+      VGW_WEBUI_GATEWAYS: http://${DDEV_HOSTNAME}:17070
+      VGW_WEBUI_ADMIN_GATEWAYS: http://${DDEV_HOSTNAME}:17071
+    volumes:
+      - ".:/mnt/ddev_config"
+      - versitygw-s3:/data/s3
+      - versitygw-versioning:/data/versioning
+      - versitygw-iam:/data/iam
+    x-ddev:
+      describe-url-port: |
+        WebUI: https://${DDEV_HOSTNAME}:17080
+      describe-info: |
+        S3 API: https://${DDEV_HOSTNAME}:17070
+        Admin API: https://${DDEV_HOSTNAME}:17071
+        Laravel endpoint: http://versitygw:7070
+        Access key: ${VERSITYGW_ACCESS_KEY:-versity}
+        Secret key: ${VERSITYGW_SECRET_KEY:-versitysecret}
+        Region: ${VERSITYGW_REGION:-us-east-1}
+        Default bucket: ${VERSITYGW_DEFAULT_BUCKET:-local}
+        Public read: ${VERSITYGW_PUBLIC_READ:-true}
+
+volumes:
+  versitygw-s3:
+  versitygw-versioning:
+  versitygw-iam:
