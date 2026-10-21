@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+#ddev-generated
+## Description: Open the VersityGW web UI
+## Usage: versitygw
+## Example: ddev versitygw
+
+set -euo pipefail
+ddev launch "${DDEV_PRIMARY_URL_WITHOUT_PORT}:17080"

@@ -17,6 +17,8 @@ export AWS_DEFAULT_REGION="${REGION}"
 export AWS_EC2_METADATA_DISABLED=true
 export AWS_PAGER=""
 
+rm -f /tmp/versitygw-ready
+
 "${VGW_ENTRYPOINT}" "$@" &
 vgw_pid=$!
 
@@ -27,7 +29,9 @@ cleanup() {
   fi
 }
 
-trap cleanup INT TERM
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 wait_for_s3() {
   i=0
@@ -75,9 +79,7 @@ EOF
 }
 
 remove_public_policy() {
-  if ! aws --endpoint-url "${ENDPOINT_URL}" s3api delete-bucket-policy --bucket "${DEFAULT_BUCKET}" >/dev/null 2>&1; then
-    echo "No bucket policy to delete for ${DEFAULT_BUCKET}, or bucket policy already private"
-  fi
+  aws --endpoint-url "${ENDPOINT_URL}" s3api delete-bucket-policy --bucket "${DEFAULT_BUCKET}" >/dev/null
 }
 
 provision_bucket() {
@@ -103,5 +105,6 @@ provision_bucket() {
 
 wait_for_s3
 provision_bucket
+touch /tmp/versitygw-ready
 
 wait "${vgw_pid}"

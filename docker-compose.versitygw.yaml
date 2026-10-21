@@ -1,12 +1,27 @@
 #ddev-generated
 services:
+  web:
+    environment:
+      FILESYSTEM_DISK: ${VERSITYGW_FILESYSTEM_DISK:-s3}
+      AWS_ACCESS_KEY_ID: ${VERSITYGW_ACCESS_KEY:-versity}
+      AWS_SECRET_ACCESS_KEY: ${VERSITYGW_SECRET_KEY:-versitysecret}
+      AWS_DEFAULT_REGION: ${VERSITYGW_REGION:-us-east-1}
+      AWS_BUCKET: ${VERSITYGW_DEFAULT_BUCKET:-local}
+      AWS_USE_PATH_STYLE_ENDPOINT: "true"
+      # Use the routed endpoint so temporary URLs also work in the browser.
+      AWS_ENDPOINT: ${DDEV_PRIMARY_URL_WITHOUT_PORT}:17070
+      # Laravel derives public URLs from the endpoint and encodes object keys.
+      AWS_URL: "null"
+      VERSITYGW_RETAIN_VISIBILITY: "false"
+      VERSITYGW_LARAVEL_AUTO_SETUP: ${VERSITYGW_LARAVEL_AUTO_SETUP:-true}
+
   versitygw:
     container_name: ddev-${DDEV_SITENAME}-versitygw
-    image: ${VERSITYGW_DOCKER_IMAGE:-ghcr.io/versity/versitygw:v1.4.1}-${DDEV_SITENAME}-built
+    image: ${VERSITYGW_DOCKER_IMAGE:-ghcr.io/versity/versitygw:v1.9.0}-${DDEV_SITENAME}-built
     build:
       context: versitygw
       args:
-        BASE_IMAGE: ${VERSITYGW_DOCKER_IMAGE:-ghcr.io/versity/versitygw:v1.4.1}
+        BASE_IMAGE: ${VERSITYGW_DOCKER_IMAGE:-ghcr.io/versity/versitygw:v1.9.0}
     hostname: versitygw
     labels:
       com.ddev.site-name: ${DDEV_SITENAME}
@@ -34,20 +49,27 @@ services:
       VGW_WEBUI_PORT: ":8080"
       VGW_IAM_DIR: /data/iam
       VGW_VERSIONING_DIR: /data/versioning
-      VGW_WEBUI_GATEWAYS: http://${DDEV_HOSTNAME}:17070
-      VGW_WEBUI_ADMIN_GATEWAYS: http://${DDEV_HOSTNAME}:17071
+      VGW_HEALTH: /health
+      VGW_WEBUI_GATEWAYS: ${DDEV_PRIMARY_URL_WITHOUT_PORT}:17070
+      VGW_WEBUI_ADMIN_GATEWAYS: ${DDEV_PRIMARY_URL_WITHOUT_PORT}:17071
     volumes:
       - ".:/mnt/ddev_config"
       - versitygw-s3:/data/s3
       - versitygw-versioning:/data/versioning
       - versitygw-iam:/data/iam
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/versitygw-ready && curl -fsS http://127.0.0.1:7070/health >/dev/null"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 5s
     x-ddev:
       describe-url-port: |
-        WebUI: https://${DDEV_HOSTNAME}:17080
+        WebUI: ${DDEV_PRIMARY_URL_WITHOUT_PORT}:17080
       describe-info: |
-        S3 API: https://${DDEV_HOSTNAME}:17070
-        Admin API: https://${DDEV_HOSTNAME}:17071
-        Laravel endpoint: http://versitygw:7070
+        S3 API: ${DDEV_PRIMARY_URL_WITHOUT_PORT}:17070
+        Admin API: ${DDEV_PRIMARY_URL_WITHOUT_PORT}:17071
+        Laravel endpoint: ${DDEV_PRIMARY_URL_WITHOUT_PORT}:17070
         Access key: ${VERSITYGW_ACCESS_KEY:-versity}
         Secret key: ${VERSITYGW_SECRET_KEY:-versitysecret}
         Region: ${VERSITYGW_REGION:-us-east-1}

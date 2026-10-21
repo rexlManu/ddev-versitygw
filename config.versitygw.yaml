@@ -1,0 +1,4 @@
+#ddev-generated
+hooks:
+  post-start:
+    - exec: bash /mnt/ddev_config/versitygw/scripts/setup-laravel.sh

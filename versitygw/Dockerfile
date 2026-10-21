@@ -1,5 +1,5 @@
 #ddev-generated
-ARG BASE_IMAGE="ghcr.io/versity/versitygw:v1.4.1"
+ARG BASE_IMAGE="ghcr.io/versity/versitygw:v1.9.0"
 FROM ${BASE_IMAGE}
 
 USER root

@@ -1,42 +1,34 @@
 name: versitygw
 
 project_files:
+  - config.versitygw.yaml
   - docker-compose.versitygw.yaml
+  - commands/host/versitygw
+  - commands/versitygw/versitygw-aws
   - versitygw/
 
 ddev_version_constraint: '>= v1.25.2'
 
 post_install_actions:
   - |
-    #ddev-description:Show versitygw usage details
+    #ddev-description:Show VersityGW setup details
     cat <<EOF
 
-    Installed ddev-versitygw.
+    Installed ddev-versitygw. Run ddev restart to finish setup.
 
-    Routed endpoints for this project:
-    - S3 API:    https://${DDEV_HOSTNAME}:17070
-    - Admin API: https://${DDEV_HOSTNAME}:17071
-    - WebUI:     https://${DDEV_HOSTNAME}:17080
+    Laravel uses the local S3 disk automatically. On the first restart,
+    the add-on installs the S3 Composer adapter if it is missing and configures
+    copies and moves in config/filesystems.php.
+    DDEV supplies the local settings without changing your app's .env file.
 
-    Laravel .env example:
-    FILESYSTEM_DISK=s3
-    AWS_ACCESS_KEY_ID=versity
-    AWS_SECRET_ACCESS_KEY=versitysecret
-    AWS_DEFAULT_REGION=us-east-1
-    AWS_BUCKET=local
-    AWS_USE_PATH_STYLE_ENDPOINT=true
-    AWS_ENDPOINT=http://versitygw:7070
-    AWS_URL=https://${DDEV_HOSTNAME}:17070/local
+    Open the web UI: ddev versitygw
+    List buckets:   ddev versitygw-aws s3 ls
 
-    Optional overrides via .ddev/.env.versitygw:
-    - VERSITYGW_DOCKER_IMAGE=ghcr.io/versity/versitygw:v1.4.1
-    - VERSITYGW_ACCESS_KEY=versity
-    - VERSITYGW_SECRET_KEY=versitysecret
-    - VERSITYGW_REGION=us-east-1
-    - VERSITYGW_DEFAULT_BUCKET=local
-    - VERSITYGW_PUBLIC_READ=true
+    Access key: ${VERSITYGW_ACCESS_KEY:-versity}
+    Secret key: ${VERSITYGW_SECRET_KEY:-versitysecret}
+    Bucket:     ${VERSITYGW_DEFAULT_BUCKET:-local}
 
-    The add-on provisions the default bucket and bucket policy automatically
-    with AWS-compatible S3 API calls during startup.
+    Optional settings: .ddev/.env.versitygw
+    See the README for custom credentials, private buckets, and setup options.
 
     EOF
